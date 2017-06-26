@@ -169,11 +169,20 @@ class FoundationTestResponseTest extends TestCase
         $response = TestResponse::fromBaseResponse(tap(new Response, $tapCallback));
 
         $this->expectException('PHPUnit_Framework_ExpectationFailedException');
-        $this->expectExceptionMessage(PHP_EOL.$this->customErrorMessage);
+        $this->expectExceptionMessage($this->customErrorMessage);
 
         call_user_func_array([$response, $method], $args);
     }
 
+    /**
+     * Provider for testing PHPUnit error message contents.
+     *
+     * Each data set contains three values:
+     * 1. The Response method to be called.
+     * 2. Arguments that should be used when calling the method.
+     * 3. A callable that will set the $response up to fail the PHPUnit assertion, allowing us to
+     *    test the resulting PHPUnit_Framework_ExpectationFailedException error message.
+     */
     public function customErrorMessageProvider()
     {
         return [
@@ -182,6 +191,32 @@ class FoundationTestResponseTest extends TestCase
             }],
             ['assertStatus', [200, $this->customErrorMessage], function ($response) {
                 $response->setStatusCode(201);
+            }],
+            ['assertRedirect', ['/home', $this->customErrorMessage], function ($response) {
+                $response->setStatusCode(200);
+            }],
+            ['assertHeader', ['Test-Header', null, $this->customErrorMessage], function ($response) {
+            }],
+            ['assertHeader', ['Test-Header', 'foo', $this->customErrorMessage], function ($response) {
+                $response->header('Test-Header', 'bar');
+            }],
+            /*['assertPlainCookie', ['testcookie', 'foo', $this->customErrorMessage], function ($response) {
+                $response->cookie('testcookie', 'bar');
+            }],
+            ['assertCookie', ['testcookie', 'foo', true, $this->customErrorMessage], function ($response) {
+                $response->cookie('testcookie', 'bar');
+            }],*/
+            ['assertSee', ['foo', $this->customErrorMessage], function ($response) {
+                $response->setContent('bar');
+            }],
+            ['assertSeeText', ['foo', $this->customErrorMessage], function ($response) {
+                $response->setContent('<foo>bar</foo>');
+            }],
+            ['assertDontSee', ['foo', $this->customErrorMessage], function ($response) {
+                $response->setContent('foo');
+            }],
+            ['assertDontSeeText', ['foo', $this->customErrorMessage], function ($response) {
+                $response->setContent('<strong>foo</strong>');
             }],
         ];
     }

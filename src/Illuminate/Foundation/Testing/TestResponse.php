@@ -68,13 +68,13 @@ class TestResponse
      * @param  string  $message
      * @return $this
      */
-    public function assertStatus($status, $message)
+    public function assertStatus($status, $message = '')
     {
         $actual = $this->getStatusCode();
 
         PHPUnit::assertTrue(
             $actual === $status,
-            "Expected status code {$status} but received {$actual}.".PHP_EOL.$message
+            "Expected status code {$status} but received {$actual}.\n{$message}"
         );
 
         return $this;
@@ -84,12 +84,13 @@ class TestResponse
      * Assert whether the response is redirecting to a given URI.
      *
      * @param  string  $uri
+     * @param  string  $message
      * @return $this
      */
-    public function assertRedirect($uri = null)
+    public function assertRedirect($uri = null, $message = '')
     {
         PHPUnit::assertTrue(
-            $this->isRedirect(), 'Response status code ['.$this->getStatusCode().'] is not a redirect status code.'
+            $this->isRedirect(), 'Response status code ['.$this->getStatusCode().'] is not a redirect status code.'.PHP_EOL.$message
         );
 
         if (! is_null($uri)) {
@@ -104,12 +105,13 @@ class TestResponse
      *
      * @param  string  $headerName
      * @param  mixed  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertHeader($headerName, $value = null)
+    public function assertHeader($headerName, $value = null, $message = '')
     {
         PHPUnit::assertTrue(
-            $this->headers->has($headerName), "Header [{$headerName}] not present on response."
+            $this->headers->has($headerName), "Header [{$headerName}] not present on response.\n{$message}"
         );
 
         $actual = $this->headers->get($headerName);
@@ -117,7 +119,7 @@ class TestResponse
         if (! is_null($value)) {
             PHPUnit::assertEquals(
                 $value, $this->headers->get($headerName),
-                "Header [{$headerName}] was found, but value [{$actual}] does not match [{$value}]."
+                "Header [{$headerName}] was found, but value [{$actual}] does not match [{$value}].\n{$message}"
             );
         }
 
@@ -129,11 +131,12 @@ class TestResponse
      *
      * @param  string  $cookieName
      * @param  mixed  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertPlainCookie($cookieName, $value = null)
+    public function assertPlainCookie($cookieName, $value = null, $message = '')
     {
-        $this->assertCookie($cookieName, $value, false);
+        $this->assertCookie($cookieName, $value, false, $message);
 
         return $this;
     }
@@ -144,13 +147,14 @@ class TestResponse
      * @param  string  $cookieName
      * @param  mixed  $value
      * @param  bool  $encrypted
+     * @param  string  $message
      * @return $this
      */
-    public function assertCookie($cookieName, $value = null, $encrypted = true)
+    public function assertCookie($cookieName, $value = null, $encrypted = true, $message = '')
     {
         PHPUnit::assertNotNull(
             $cookie = $this->getCookie($cookieName),
-            "Cookie [{$cookieName}] not present on response."
+            "Cookie [{$cookieName}] not present on response.\n{$message}"
         );
 
         if (! $cookie || is_null($value)) {
@@ -164,7 +168,7 @@ class TestResponse
 
         PHPUnit::assertEquals(
             $value, $actual,
-            "Cookie [{$cookieName}] was found, but value [{$actual}] does not match [{$value}]."
+            "Cookie [{$cookieName}] was found, but value [{$actual}] does not match [{$value}].\n{$message}"
         );
 
         return $this;
@@ -189,11 +193,12 @@ class TestResponse
      * Assert that the given string is contained within the response.
      *
      * @param  string  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertSee($value)
+    public function assertSee($value, $message = '')
     {
-        PHPUnit::assertContains($value, $this->getContent());
+        PHPUnit::assertContains($value, $this->getContent(), $message);
 
         return $this;
     }
@@ -202,11 +207,12 @@ class TestResponse
      * Assert that the given string is contained within the response text.
      *
      * @param  string  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertSeeText($value)
+    public function assertSeeText($value, $message = '')
     {
-        PHPUnit::assertContains($value, strip_tags($this->getContent()));
+        PHPUnit::assertContains($value, strip_tags($this->getContent()), $message);
 
         return $this;
     }
@@ -215,11 +221,12 @@ class TestResponse
      * Assert that the given string is not contained within the response.
      *
      * @param  string  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertDontSee($value)
+    public function assertDontSee($value, $message = '')
     {
-        PHPUnit::assertNotContains($value, $this->getContent());
+        PHPUnit::assertNotContains($value, $this->getContent(), $message);
 
         return $this;
     }
@@ -228,11 +235,12 @@ class TestResponse
      * Assert that the given string is not contained within the response text.
      *
      * @param  string  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertDontSeeText($value)
+    public function assertDontSeeText($value, $message)
     {
-        PHPUnit::assertNotContains($value, strip_tags($this->getContent()));
+        PHPUnit::assertNotContains($value, strip_tags($this->getContent()), $message);
 
         return $this;
     }
