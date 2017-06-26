@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class FoundationTestResponseTest extends TestCase
 {
+    protected $customErrorMessage = 'This is a custom error message';
+
     public function testAssertViewIs()
     {
         $baseResponse = tap(new Response, function ($response) {
@@ -157,6 +159,31 @@ class FoundationTestResponseTest extends TestCase
         $this->assertEquals($tempDir.'/file.txt', $response->getFile()->getPathname());
 
         $files->deleteDirectory($tempDir);
+    }
+
+    /**
+     * @dataProvider customErrorMessageProvider
+     */
+    public function testCanContainCustomErrorMessages($method, $args, $tapCallback)
+    {
+        $response = TestResponse::fromBaseResponse(tap(new Response, $tapCallback));
+
+        $this->expectException('PHPUnit_Framework_ExpectationFailedException');
+        $this->expectExceptionMessage(PHP_EOL.$this->customErrorMessage);
+
+        call_user_func_array([$response, $method], $args);
+    }
+
+    public function customErrorMessageProvider()
+    {
+        return [
+            ['assertSuccessful', [$this->customErrorMessage], function ($response) {
+                $response->setStatusCode(404);
+            }],
+            ['assertStatus', [200, $this->customErrorMessage], function ($response) {
+                $response->setStatusCode(201);
+            }],
+        ];
     }
 }
 

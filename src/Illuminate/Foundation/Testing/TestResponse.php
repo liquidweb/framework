@@ -48,13 +48,14 @@ class TestResponse
     /**
      * Assert that the response has a successful status code.
      *
+     * @param  string  $message
      * @return $this
      */
-    public function assertSuccessful()
+    public function assertSuccessful($message = '')
     {
         PHPUnit::assertTrue(
             $this->isSuccessful(),
-            'Response status code ['.$this->getStatusCode().'] is not a successful status code.'
+            'Response status code ['.$this->getStatusCode().'] is not a successful status code.'.PHP_EOL.$message
         );
 
         return $this;
@@ -64,15 +65,16 @@ class TestResponse
      * Assert that the response has the given status code.
      *
      * @param  int  $status
+     * @param  string  $message
      * @return $this
      */
-    public function assertStatus($status)
+    public function assertStatus($status, $message)
     {
         $actual = $this->getStatusCode();
 
         PHPUnit::assertTrue(
             $actual === $status,
-            "Expected status code {$status} but received {$actual}."
+            "Expected status code {$status} but received {$actual}.".PHP_EOL.$message
         );
 
         return $this;
