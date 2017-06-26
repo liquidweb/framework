@@ -168,7 +168,7 @@ class FoundationTestResponseTest extends TestCase
     {
         $response = TestResponse::fromBaseResponse(tap(new Response, $tapCallback));
 
-        $this->expectException('PHPUnit_Framework_ExpectationFailedException');
+        $this->expectException('PHPUnit_Framework_AssertionFailedError');
         $this->expectExceptionMessage($this->customErrorMessage);
 
         call_user_func_array([$response, $method], $args);
@@ -181,7 +181,7 @@ class FoundationTestResponseTest extends TestCase
      * 1. The Response method to be called.
      * 2. Arguments that should be used when calling the method.
      * 3. A callable that will set the $response up to fail the PHPUnit assertion, allowing us to
-     *    test the resulting PHPUnit_Framework_ExpectationFailedException error message.
+     *    test the resulting PHPUnit_Framework_AssertionFailedError error message.
      */
     public function customErrorMessageProvider()
     {
