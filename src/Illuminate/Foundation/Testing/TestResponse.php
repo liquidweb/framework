@@ -427,14 +427,15 @@ class TestResponse
     /**
      * Assert that the response view equals the given value.
      *
-     * @param  string $value
+     * @param  string  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertViewIs($value)
+    public function assertViewIs($value, $message = '')
     {
         $this->ensureResponseHasView();
 
-        PHPUnit::assertEquals($value, $this->original->getName());
+        PHPUnit::assertEquals($value, $this->original->getName(), $message);
 
         return $this;
     }
@@ -444,9 +445,10 @@ class TestResponse
      *
      * @param  string|array  $key
      * @param  mixed  $value
+     * @param  string  $message
      * @return $this
      */
-    public function assertViewHas($key, $value = null)
+    public function assertViewHas($key, $value = null, $message = '')
     {
         if (is_array($key)) {
             return $this->assertViewHasAll($key);
@@ -455,11 +457,11 @@ class TestResponse
         $this->ensureResponseHasView();
 
         if (is_null($value)) {
-            PHPUnit::assertArrayHasKey($key, $this->original->getData());
+            PHPUnit::assertArrayHasKey($key, $this->original->getData(), $message);
         } elseif ($value instanceof Closure) {
-            PHPUnit::assertTrue($value($this->original->$key));
+            PHPUnit::assertTrue($value($this->original->$key), $message);
         } else {
-            PHPUnit::assertEquals($value, $this->original->$key);
+            PHPUnit::assertEquals($value, $this->original->$key, $message);
         }
 
         return $this;
@@ -469,15 +471,16 @@ class TestResponse
      * Assert that the response view has a given list of bound data.
      *
      * @param  array  $bindings
+     * @param  string  $message
      * @return $this
      */
-    public function assertViewHasAll(array $bindings)
+    public function assertViewHasAll(array $bindings, $message = '')
     {
         foreach ($bindings as $key => $value) {
             if (is_int($key)) {
-                $this->assertViewHas($value);
+                $this->assertViewHas($value, null, $message);
             } else {
-                $this->assertViewHas($key, $value);
+                $this->assertViewHas($key, $value, $message);
             }
         }
 
@@ -488,13 +491,14 @@ class TestResponse
      * Assert that the response view is missing a piece of bound data.
      *
      * @param  string  $key
+     * @param  string  $message
      * @return $this
      */
-    public function assertViewMissing($key)
+    public function assertViewMissing($key, $message = '')
     {
         $this->ensureResponseHasView();
 
-        PHPUnit::assertArrayNotHasKey($key, $this->original->getData());
+        PHPUnit::assertArrayNotHasKey($key, $this->original->getData(), $message);
 
         return $this;
     }

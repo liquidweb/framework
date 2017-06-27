@@ -4,6 +4,7 @@ namespace Illuminate\Tests\Foundation;
 
 use JsonSerializable;
 use Illuminate\Http\Response;
+use Mockery;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Contracts\View\View;
 use Illuminate\Filesystem\Filesystem;
@@ -235,6 +236,48 @@ class FoundationTestResponseTest extends TestCase
             }],
             ['assertJsonStructure', [['foo' => 'foo'], null, $this->customErrorMessage], function ($response) {
                 $response->setContent('[]');
+            }],
+            ['assertViewIs', ['foo', $this->customErrorMessage], function ($response) {
+                $response->setContent(Mockery::mock(View::class, [
+                    'render' => 'hello world',
+                    'getName' => 'bar',
+                ]));
+            }],
+            ['assertViewHas', ['foo', null, $this->customErrorMessage], function ($response) {
+                $response->setContent(Mockery::mock(View::class, [
+                    'render' => 'hello world',
+                    'getData' => ['bar' => 'baz'],
+                ]));
+            }],
+            ['assertViewHas', ['foo', function () { return false; }, $this->customErrorMessage], function ($response) {
+                $mock = Mockery::mock(View::class, ['render' => 'hello world']);
+                $mock->foo = 'bar';
+
+                $response->setContent($mock);
+            }],
+            ['assertViewHas', ['foo', 'bar', $this->customErrorMessage], function ($response) {
+                $mock = Mockery::mock(View::class, ['render' => 'hello world']);
+                $mock->foo = 'notFoo';
+
+                $response->setContent($mock);
+            }],
+            ['assertViewHasAll', [['foo'], $this->customErrorMessage], function ($response) {
+                $response->setContent(Mockery::mock(View::class, [
+                    'render' => 'hello world',
+                    'getData' => ['bar' => 'baz'],
+                ]));
+            }],
+            ['assertViewHasAll', [['foo' => 'bar'], $this->customErrorMessage], function ($response) {
+                $mock = Mockery::mock(View::class, ['render' => 'hello world']);
+                $mock->foo = 'notFoo';
+
+                $response->setContent($mock);
+            }],
+            ['assertViewMissing', ['foo', $this->customErrorMessage], function ($response) {
+                $response->setContent(Mockery::mock(View::class, [
+                    'render' => 'hello world',
+                    'getData' => ['foo' => 'bar'],
+                ]));
             }],
         ];
     }
