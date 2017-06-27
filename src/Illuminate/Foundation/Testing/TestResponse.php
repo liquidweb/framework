@@ -238,7 +238,7 @@ class TestResponse
      * @param  string  $message
      * @return $this
      */
-    public function assertDontSeeText($value, $message)
+    public function assertDontSeeText($value, $message = '')
     {
         PHPUnit::assertNotContains($value, strip_tags($this->getContent()), $message);
 
@@ -249,12 +249,13 @@ class TestResponse
      * Assert that the response is a superset of the given JSON.
      *
      * @param  array  $data
+     * @param  string  $message
      * @return $this
      */
-    public function assertJson(array $data)
+    public function assertJson(array $data, $message = '')
     {
         PHPUnit::assertArraySubset(
-            $data, $this->decodeResponseJson(), false, $this->assertJsonMessage($data)
+            $data, $this->decodeResponseJson(), false, $this->assertJsonMessage($data, $message)
         );
 
         return $this;
@@ -264,9 +265,10 @@ class TestResponse
      * Get the assertion message for assertJson.
      *
      * @param  array  $data
+     * @param  string  $message
      * @return string
      */
-    protected function assertJsonMessage(array $data)
+    protected function assertJsonMessage(array $data, $message = '')
     {
         $expected = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 
@@ -275,22 +277,24 @@ class TestResponse
         return 'Unable to find JSON: '.PHP_EOL.PHP_EOL.
             "[{$expected}]".PHP_EOL.PHP_EOL.
             'within response JSON:'.PHP_EOL.PHP_EOL.
-            "[{$actual}].".PHP_EOL.PHP_EOL;
+            "[{$actual}].".PHP_EOL.PHP_EOL.
+            $message.PHP_EOL.PHP_EOL;
     }
 
     /**
      * Assert that the response has the exact given JSON.
      *
      * @param  array  $data
+     * @param  string  $message
      * @return $this
      */
-    public function assertExactJson(array $data)
+    public function assertExactJson(array $data, $message = '')
     {
         $actual = json_encode(Arr::sortRecursive(
             (array) $this->decodeResponseJson()
         ));
 
-        PHPUnit::assertEquals(json_encode(Arr::sortRecursive($data)), $actual);
+        PHPUnit::assertEquals(json_encode(Arr::sortRecursive($data)), $actual, $message);
 
         return $this;
     }
@@ -299,9 +303,10 @@ class TestResponse
      * Assert that the response contains the given JSON fragment.
      *
      * @param  array  $data
+     * @param  string  $message
      * @return $this
      */
-    public function assertJsonFragment(array $data)
+    public function assertJsonFragment(array $data, $message = '')
     {
         $actual = json_encode(Arr::sortRecursive(
             (array) $this->decodeResponseJson()
@@ -315,7 +320,8 @@ class TestResponse
                 'Unable to find JSON fragment: '.PHP_EOL.PHP_EOL.
                 "[{$expected}]".PHP_EOL.PHP_EOL.
                 'within'.PHP_EOL.PHP_EOL.
-                "[{$actual}]."
+                "[{$actual}].".PHP_EOL.PHP_EOL.
+                $message
             );
         }
 
@@ -326,9 +332,10 @@ class TestResponse
      * Assert that the response does not contain the given JSON fragment.
      *
      * @param  array  $data
+     * @param  string  $message
      * @return $this
      */
-    public function assertJsonMissing(array $data)
+    public function assertJsonMissing(array $data, $message = '')
     {
         $actual = json_encode(Arr::sortRecursive(
             (array) $this->decodeResponseJson()
@@ -342,7 +349,8 @@ class TestResponse
                 'Found unexpected JSON fragment: '.PHP_EOL.PHP_EOL.
                 "[{$expected}]".PHP_EOL.PHP_EOL.
                 'within'.PHP_EOL.PHP_EOL.
-                "[{$actual}]."
+                "[{$actual}].".PHP_EOL.PHP_EOL.
+                $message
             );
         }
 
@@ -354,12 +362,13 @@ class TestResponse
      *
      * @param  array|null  $structure
      * @param  array|null  $responseData
+     * @param  string  $message
      * @return $this
      */
-    public function assertJsonStructure(array $structure = null, $responseData = null)
+    public function assertJsonStructure(array $structure = null, $responseData = null, $message = '')
     {
         if (is_null($structure)) {
-            return $this->assertJson($this->json());
+            return $this->assertJson($this->json(), $message);
         }
 
         if (is_null($responseData)) {
@@ -368,17 +377,17 @@ class TestResponse
 
         foreach ($structure as $key => $value) {
             if (is_array($value) && $key === '*') {
-                PHPUnit::assertInternalType('array', $responseData);
+                PHPUnit::assertInternalType('array', $responseData, $message);
 
                 foreach ($responseData as $responseDataItem) {
                     $this->assertJsonStructure($structure['*'], $responseDataItem);
                 }
             } elseif (is_array($value)) {
-                PHPUnit::assertArrayHasKey($key, $responseData);
+                PHPUnit::assertArrayHasKey($key, $responseData, $message);
 
-                $this->assertJsonStructure($structure[$key], $responseData[$key]);
+                $this->assertJsonStructure($structure[$key], $responseData[$key], $message);
             } else {
-                PHPUnit::assertArrayHasKey($value, $responseData);
+                PHPUnit::assertArrayHasKey($value, $responseData, $message);
             }
         }
 

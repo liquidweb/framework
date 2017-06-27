@@ -218,6 +218,24 @@ class FoundationTestResponseTest extends TestCase
             ['assertDontSeeText', ['foo', $this->customErrorMessage], function ($response) {
                 $response->setContent('<strong>foo</strong>');
             }],
+            ['assertJson', [['foo'], $this->customErrorMessage], function ($response) {
+                $response->setContent('["bar"]');
+            }],
+            ['assertExactJson', [['foo'], $this->customErrorMessage], function ($response) {
+                $response->setContent('["bar"]');
+            }],
+            ['assertJsonFragment', [['foo'], $this->customErrorMessage], function ($response) {
+                $response->setContent('["bar"]');
+            }],
+            ['assertJsonMissing', [['foo'], $this->customErrorMessage], function ($response) {
+                $response->setContent('["foo"]');
+            }],
+            ['assertJsonStructure', [['foos' => ['foo']], null, $this->customErrorMessage], function ($response) {
+                $response->setContent('[]');
+            }],
+            ['assertJsonStructure', [['foo' => 'foo'], null, $this->customErrorMessage], function ($response) {
+                $response->setContent('[]');
+            }],
         ];
     }
 }
